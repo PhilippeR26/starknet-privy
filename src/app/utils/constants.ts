@@ -16,7 +16,7 @@ export const myFrontendProviders: RpcProvider[] = [
 ];
 // export const ReadyAccountClassHash = "0x1a736d6ed154502257f02b1ccdf4d9d1089f80811cd6acad48e6b6a9d1f2003"; // v0.3.0
 // export const ReadyAccountClassHash = "0x036078334509b514626504edc9fb252328d1a240e4e948bef8d0c08dff45927f"; // v0.4.0
-export const ReadyAccountClassHash = "0xbe187ea57c1dcf8b0b954bf68b7aeeafe071418acbfcab5951125dca69bb97"; // v0.5.0
+export const ReadyAccountClassHash = "0x073414441639dcd11d1846f287650a00c60c416b9d3ba45d31c651672125b2c2"; // v0.5.0
 
 // export const rpId = "starknet-web-auth-n.vercel.app"; // name of site, without "http://", without any port
 export const rpId = "localhost"; // name of site, without "http://", without any port

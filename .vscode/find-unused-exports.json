@@ -1,0 +1,7 @@
+{
+  "ignore": {
+    "files": [
+      "/D/Starknet/starknet-privy/src/components/ui/color-mode.tsx"
+    ]
+  }
+}

@@ -1,33 +1,29 @@
 import { CairoCustomEnum, CairoOption, CairoOptionVariant, CallData, hash, type Calldata } from "starknet";
-import type { WebAuthNUser } from "../type/types";
+import type { WalletDef } from "../types";
 import { ReadyAccountAbi } from "@/contracts/ReadyAbi";
-import { calculateSalt } from "./WebAuthnUtils";
 import { ReadyAccountClassHash } from "./constants";
 
 
-
-export function defineConstructor(readyWebAuthUser: WebAuthNUser): Calldata {
+export function definePrivyConstructor(privyWallet:WalletDef): Calldata {
     const callDataReady = new CallData(ReadyAccountAbi.abi);
-    const ReadyWebAuthn = new CairoCustomEnum({
-        Webauthn: {
-            origin: readyWebAuthUser.origin,
-            rp_id_hash: readyWebAuthUser.rp_id_hash,
-            pubkey: readyWebAuthUser.pubKey
+    const ReadyStarknet = new CairoCustomEnum({
+        Starknet: {
+            pubkey: privyWallet.publicKey??""
         }
     });
-    console.log("constructor ReadyWebAuthn=", ReadyWebAuthn);
+    console.log("constructor ReadyStarknet=", ReadyStarknet);
     const ReadyGuardian = new CairoOption(CairoOptionVariant.None);
     const constructorReadyCallData = callDataReady.compile("constructor", {
-        owner: ReadyWebAuthn,
+        owner: ReadyStarknet,
         guardian: ReadyGuardian
     });
     console.log("constructor =", constructorReadyCallData);
     return constructorReadyCallData;
 }
 
-export function calculateAccountAddress(ReadySigner: WebAuthNUser): string {
-    const constructorReadyCallData = defineConstructor(ReadySigner);
-    const salt = calculateSalt(ReadySigner.pubKey);
+export function calculatePrivyAccountAddress(privyWallet:WalletDef): string {
+    const constructorReadyCallData = definePrivyConstructor(privyWallet);
+    const salt = privyWallet.publicKey??"0x00";
     console.log("salt=", salt);
     console.log("constructor=", constructorReadyCallData);
     console.log("ReadyAccountClassHash=", ReadyAccountClassHash);

@@ -2,17 +2,22 @@
 
 import ManageUser from "./ConnectWallet/ManageUser";
 import { useGlobalContext } from "@/app/globalContext";
-import SendWebAuthNTransaction from "./Transaction/SendWebAuthNTransaction";
+import { usePrivy } from "@privy-io/react-auth";
+import SendPrivyTransaction from "./Transaction/SendPrivyTransaction";
 
 
 export function DisplayConnected() {
-    const { webAuthNAccount } = useGlobalContext();
-    
+    const { privyAccount } = useGlobalContext();
+    const { ready, authenticated, user, getAccessToken, logout } = usePrivy();
+
     return (
         <>
-            <ManageUser></ManageUser>
-            {!!webAuthNAccount &&
-                <SendWebAuthNTransaction></SendWebAuthNTransaction>
+            {user && <> <ManageUser></ManageUser>
+                {!!privyAccount && <>
+                    <SendPrivyTransaction></SendPrivyTransaction>
+                </>
+                }
+            </>
             }
         </>
     )

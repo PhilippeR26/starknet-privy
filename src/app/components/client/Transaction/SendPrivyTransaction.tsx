@@ -17,8 +17,8 @@ interface FormValues {
 }
 
 
-export default function SendWebAuthNTransaction() {
-    const { webAuthNAccount } = useGlobalContext();
+export default function SendPrivyTransaction() {
+    const { privyAccount } = useGlobalContext();
     const [inProgress, setInProgress] = useState<boolean>(false);
     const [destAddress, setDestAddress] = useState<string>("");
     const [amount, setAmount] = useState<string>("");
@@ -31,33 +31,35 @@ export default function SendWebAuthNTransaction() {
     } = useForm<FormValues>();
 
     async function sendTx(values: FormValues) {
-        if (!!webAuthNAccount) {
+        if (!!privyAccount) {
             setTxR(undefined);
             setDestAddress(values.targetAddress);
             const qty = convertAmount(values.amount);
             setAmount(qty.toString());
             setInProgress(true);
-            const strkContract = new Contract({ abi: ERC20Abi.abi, address: addrSTRK, providerOrAccount: webAuthNAccount });
-            const ethContract = new Contract({ abi: ERC20Abi.abi, address: addrETH, providerOrAccount: webAuthNAccount });
-            const balanceSTRK = await strkContract.balanceOf(webAuthNAccount.address) as bigint;
-            const balanceETH = await ethContract.balanceOf(webAuthNAccount.address) as bigint;
-            console.log("balance new account", webAuthNAccount.address, "=", balanceSTRK, "STRK\n", balanceETH, "ETH");
+            const strkContract = new Contract({ abi: ERC20Abi.abi, address: addrSTRK, providerOrAccount: privyAccount });
+            const ethContract = new Contract({ abi: ERC20Abi.abi, address: addrETH, providerOrAccount: privyAccount });
+            const balanceSTRK = await strkContract.balanceOf(privyAccount.address) as bigint;
+            const balanceETH = await ethContract.balanceOf(privyAccount.address) as bigint;
+            console.log("balance new account", privyAccount.address, "=", balanceSTRK, "STRK\n", balanceETH, "ETH");
             const transferCall = strkContract.populate("transfer", {
                 recipient: values.targetAddress,
                 amount: qty,
             });
             console.log("transfer =", transferCall);
-            const estimateFees = await webAuthNAccount.estimateInvokeFee(transferCall, { skipValidate: true });
-            const tmpL2amount = estimateFees.resourceBounds.l2_gas.max_amount;
-            console.log("Estimate L2 amount=", tmpL2amount);
-            estimateFees.resourceBounds.l2_gas.max_amount += SignatureValidationL2Resources;
-            console.log("estimateFees2=", estimateFees.resourceBounds.l2_gas.max_amount, "total=", estimateFees.overall_fee, "digits=", estimateFees.overall_fee.toString().length - 1);
+            // const estimateFees = await privyAccount.estimateInvokeFee(transferCall, { skipValidate: true });
+            // const tmpL2amount = estimateFees.resourceBounds.l2_gas.max_amount;
+            // console.log("Estimate L2 amount=", tmpL2amount);
+            // estimateFees.resourceBounds.l2_gas.max_amount += SignatureValidationL2Resources;
+            // console.log("estimateFees2=", estimateFees.resourceBounds.l2_gas.max_amount, "total=", estimateFees.overall_fee, "digits=", estimateFees.overall_fee.toString().length - 1);
 
-            const resp = await webAuthNAccount.execute(transferCall, {
-                resourceBounds: estimateFees.resourceBounds,
-                skipValidate: true,
-            });
-            const txR = await webAuthNAccount.waitForTransaction(resp.transaction_hash);
+            const resp = await privyAccount.execute(transferCall,
+            //      {
+            //     resourceBounds: estimateFees.resourceBounds,
+            //     skipValidate: true,
+            // }
+        );
+            const txR = await privyAccount.waitForTransaction(resp.transaction_hash);
             setTxR(txR);
             setInProgress(false);
             console.log("Transfer processed! TxR=", txR);
@@ -65,7 +67,7 @@ export default function SendWebAuthNTransaction() {
             txR.match({
                 SUCCEEDED: async (txR: SuccessfulTransactionReceiptResponse) => {
                     console.log('Success =', txR);
-                    const resBl = await webAuthNAccount.getBlockWithTxs("latest");
+                    const resBl = await privyAccount.getBlockWithTxs("latest");
                     console.log("tx=", resBl.transactions);
                 },
                 _: () => {
@@ -92,13 +94,13 @@ export default function SendWebAuthNTransaction() {
         <>
             <Center pb={2} pt={3}>
                 <QRCode
-                    value={webAuthNAccount!.address}
+                    value={privyAccount!.address}
                     size={150}
                     level="M"
                 />
             </Center>
             <Center>
-                <GetBalance tokenAddress={addrSTRK} accountAddress={webAuthNAccount!.address} ></GetBalance>
+                <GetBalance tokenAddress={addrSTRK} accountAddress={privyAccount!.address} ></GetBalance>
             </Center>
             <form onSubmit={handleSubmit(sendTx)}>
                 <Center>

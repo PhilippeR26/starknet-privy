@@ -1,12 +1,17 @@
 "use client";
 import type { Account } from "starknet";
 import { create } from "zustand";
+import type { WalletDef } from "./types";
 interface GlobalState {
-    webAuthNAccount: Account | undefined,
-    setWebAuthNAccount: (webAuthNAccount: Account | undefined) => void,
+    walletDefinition: WalletDef | undefined,
+    setWalletDefinition: (walletDefinition: WalletDef | undefined) => void;
+    privyAccount: Account | undefined,
+    setPrivyAccount: (webAuthNAccount: Account | undefined) => void,
 }
 
 export const useGlobalContext = create<GlobalState>()(set => ({
-    webAuthNAccount: undefined,
-    setWebAuthNAccount: (webAuthNAccount: Account | undefined) => { set(_state => ({ webAuthNAccount })) },
+    walletDefinition: undefined,
+    setWalletDefinition: (walletDefinition: WalletDef | undefined) => { set(state => ({ walletDefinition })) },
+    privyAccount: undefined,
+    setPrivyAccount: (privyAccount: Account | undefined) => { set(_state => ({ privyAccount })) },
 }));
