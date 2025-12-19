@@ -5,8 +5,8 @@ import type { WalletDef } from "../types";
 import { encode, type Signature } from "starknet";
 import type { AuthorizationContext, PrivyClient as PrivyClientNode } from "@privy-io/node";
 
-export async function privySign(wallet: WalletDef, messageHash: string,jwt:string): Promise<Signature> {
-    const privyNode: PrivyClientNode = getPrivyClientNode();
+export async function privySignNode(wallet: WalletDef, messageHash: string,jwt:string): Promise<Signature> {
+    const privyNode: PrivyClientNode =await getPrivyClientNode("123");
     // const authPrivK = process.env.PRIVY_AUTHORIZATION_PRIVATE_KEY ?? "";
     // const authorizationContext: AuthorizationContext = {
     //     authorization_private_keys: [authPrivK],
@@ -64,7 +64,7 @@ async function buildAPIRequest(wallet: WalletDef, messageHash: string): Promise<
 
 //   curl --request POST \
 // --url https://api.privy.io/v1/wallets/{wallet_id}/raw_sign \
-// --header 'Authorization: Basic Y20xNWh4eDUyMDVlNWx2NHVkdmE3enBqejoybWhVOWhhVTFQYjhYNXV1cVdxQVRIdW5xTWIyUlBKRm5GSHRzWDVzbXNkdUJRUDZtTW05YldmalBwS3hocjJQZHNHY0Q5NkFUeDc5em03WWhicUZLWkM4' \
+// --header 'Authorization: Basic Y20...M4' \
 // --header 'Content-Type: application/json' \
 // --header 'privy-app-id: <privy-app-id>' \
 // --data '{

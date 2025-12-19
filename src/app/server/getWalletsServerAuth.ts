@@ -1,7 +1,7 @@
 "use server";
 
 import type { LinkedAccountWithMetadata, PrivyClient, User, WalletApiWalletResponseType, WalletWithMetadata } from "@privy-io/server-auth";
-import { getPrivyClientServerAuth } from "./privyClient";
+import { getPrivyClientServer } from "./privyClient";
 import type { WalletDef } from "../types";
 
 /**
@@ -10,34 +10,23 @@ import type { WalletDef } from "../types";
  * @param userId 
  * @returns 
  */
-export async function getWallets(userId: string): Promise<WalletDef[]> {
-    const privy: PrivyClient = getPrivyClientServerAuth();
+export async function getWalletsServer(userId: string): Promise<WalletDef | undefined> {
+    const privy: PrivyClient = getPrivyClientServer();
     const user: User = await privy.getUserById(userId);
     const accounts = user?.linkedAccounts;
     const starkWallets = (accounts.filter(
         (acc: LinkedAccountWithMetadata) => acc.type === "wallet" && acc.chainType === "starknet"
     )) as WalletWithMetadata[];
-    const wallets = await Promise.all(
-        starkWallets.map(async (acc: WalletWithMetadata) => {
-            try {
-                const w: WalletApiWalletResponseType = await privy.walletApi.getWallet({ id: acc.id! });
-                const publicKey: string | undefined = w.publicKey;
-                const address: string = w.address;
-                return {
-                    id: w.id,
-                    address,
-                    chainType: w.chainType,
-                    publicKey,
-                } as WalletDef;
-
-            } catch {
-                return {
-                    id: acc.id!,
-                    address: acc.address!,
-                    chainType: acc.chainType ?? "starknet",
-                } as WalletDef;
-            }
-        })
-    );
-    return wallets;
+    console.log("getWalletNode: starkWallets.length=", starkWallets.length);
+    if (starkWallets.length === 0) return undefined;
+    const snWallet = starkWallets[0];
+    const w: WalletApiWalletResponseType = await privy.walletApi.getWallet({ id: snWallet.id! });
+    const publicKey: string | undefined = w.publicKey;
+    const def = {
+        id: w.id,
+        address: w.address,
+        chainType: w.chainType,
+        publicKey: publicKey,
+    } as WalletDef
+    return def;
 }

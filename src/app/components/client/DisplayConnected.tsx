@@ -12,7 +12,7 @@ export function DisplayConnected() {
 
     return (
         <>
-            {user && <> <ManageUser></ManageUser>
+            {user && ready && <> <ManageUser></ManageUser>
                 {!!privyAccount && <>
                     <SendPrivyTransaction></SendPrivyTransaction>
                 </>

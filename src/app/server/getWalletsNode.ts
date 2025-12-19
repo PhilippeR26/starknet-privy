@@ -3,6 +3,7 @@
 import { getPrivyClientNode } from "./privyClient";
 import type { WalletDef } from "../types";
 import type { PrivyClient as PrivyClientNode, User } from "@privy-io/node";
+import { getStarknetWallet } from "./getStarknetWallet";
 
 /**
  * Get Data from the Starknet account.
@@ -11,16 +12,8 @@ import type { PrivyClient as PrivyClientNode, User } from "@privy-io/node";
  * @returns 
  */
 export async function getWalletsNode(userId: string): Promise<WalletDef|undefined> {
-    const privy: PrivyClientNode = getPrivyClientNode();
-    const user: User = await privy.users()._get(userId);
-    const accounts = user.linked_accounts;
-    const starkWallets = (accounts.filter(
-        (acc) => acc.type === "wallet" && acc.chain_type === "starknet"
-    )) as any[];
-    console.log("getWalletNode: starkWallets.length=",starkWallets.length);
-    if (starkWallets.length===0) return undefined;
-    const w = starkWallets[0];
-    
+    const privy: PrivyClientNode = await getPrivyClientNode(userId);
+    const w=await getStarknetWallet(privy,userId);
     const def = {
         id: w.id,
         address: w.address,

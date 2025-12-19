@@ -1,13 +1,13 @@
 "use client";
 
-import { Button, Center,  Spinner, VStack, Text } from "@chakra-ui/react";
-import {  Account,  num } from 'starknet';
+import { Button, Center, Spinner, VStack, Text } from "@chakra-ui/react";
+import { Account, num } from 'starknet';
 import { myFrontendProviders } from '@/app/utils/constants';
 import { useEffect, useState } from 'react';
 import type { WalletDef } from '@/app/types';
 import { useGlobalContext } from '@/app/globalContext';
 import { useFrontendProvider } from "../provider/providerContext";
-import {  calculatePrivyAccountAddress } from "@/app/utils/account";
+import { calculatePrivyAccountAddress } from "@/app/utils/account";
 import { Copy } from "lucide-react";
 import { Toaster, toaster } from "@/components/ui/toaster";
 import { shortHex64 } from "@/app/utils/format";
@@ -17,6 +17,8 @@ import { createPrivyAccount } from "@/app/server/sponsorPrivyAccount";
 import { PrivySigner } from "../Transaction/PrivySigner";
 import type { Wallet } from "@privy-io/node";
 import { getWalletsNode } from "@/app/server/getWalletsNode";
+import { getWalletsServer } from "@/app/server/getWalletsServerAuth";
+import { getAccessToken } from '@privy-io/react-auth';
 
 interface FormValues {
   accountName: string
@@ -31,7 +33,7 @@ export default function ManageUser() {
   const { currentFrontendProviderIndex } = useFrontendProvider();
   const myFrontendProvider = myFrontendProviders[currentFrontendProviderIndex];
 
-  const { ready, authenticated, user, getAccessToken, logout } = usePrivy();
+  const { ready, authenticated, user, logout  } = usePrivy();
 
   async function handleCopyAddress() {
     try {
@@ -69,14 +71,14 @@ export default function ManageUser() {
     }
     setIsDeploymentInProgress(true);
     // create wallet
-    const responseCreateWallet: Wallet = await createPrivyWallet(user.id);
+    const responseCreateWallet = await createPrivyWallet(user.id);
     console.log("Wallet created. responseCreateWallet =", responseCreateWallet);
     const walletDefined: WalletDef =
       {
         id: responseCreateWallet.id,
         address: responseCreateWallet.address,
-        chainType: responseCreateWallet.chain_type,
-        publicKey: responseCreateWallet.public_key,
+        chainType: responseCreateWallet.chainType,
+        publicKey: responseCreateWallet.publicKey,
       } as WalletDef
     setWalletDefinition(walletDefined);
     // deploy account
@@ -100,7 +102,7 @@ export default function ManageUser() {
 
     const accountAddress = await createPrivyAccount(walletDefined);
     console.log("account deployed at :", accountAddress)
-    const signer = new PrivySigner(walletDefined, userJwt);
+    const signer = new PrivySigner(walletDefined, user.id, userJwt);
     const privyAccount = new Account({
       provider: myFrontendProvider,
       address: accountAddress,
@@ -113,7 +115,9 @@ export default function ManageUser() {
   }
 
   async function getWallet(user: User): Promise<WalletDef | undefined> {
-    const walletDefinition = await getWalletsNode(user.id);
+    console.log("user =", user);
+    const walletDefinition = await getWalletsServer(user.id);
+    console.log("walletDefinition=", walletDefinition);
     return walletDefinition;
   }
 
@@ -145,7 +149,7 @@ export default function ManageUser() {
             return;
           }
           setUserJwt(userJWT);
-          const signer = new PrivySigner(wallet, userJWT);
+          const signer = new PrivySigner(wallet, user.id, userJWT);
           const privyAccount = new Account({
             provider: myFrontendProvider,
             address: accountAddress,

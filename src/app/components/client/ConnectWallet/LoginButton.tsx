@@ -7,13 +7,13 @@ export default function LoginButton() {
   const { login, logout, authenticated, user, ready } = usePrivy();
   const verticalMargin=4;
 
-  function userDebug() {
-    if (!ready) {
-      console.log("Not ready.")
-    } else{
-      console.log("user =",user);
-    }
-  }
+  // function userDebug() {
+  //   if (!ready) {
+  //     console.log("Not ready.")
+  //   } else{
+  //     console.log("user =",user);
+  //   }
+  // }
 
   if (authenticated) {
     return (
