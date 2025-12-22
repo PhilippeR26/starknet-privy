@@ -10,8 +10,16 @@ export function getPrivyClientServerAuth(): PrivyClientServerAuth {
   if (client) return client;
   const appId = process.env.NEXT_PUBLIC_PRIVY_APP_ID;
   const appSecret = process.env.PRIVY_APP_SECRET;
+  const authKey = process.env.PRIVY_WALLET_AUTH_PRIVATE_KEY
   if (!appId || !appSecret) throw new Error('Missing NEXT_PUBLIC_PRIVY_APP_ID or PRIVY_APP_SECRET');
   client = new PrivyClientServerAuth(appId, appSecret);
+  if (authKey) {
+    try {
+      client.walletApi.updateAuthorizationKey(authKey)
+    } catch (e: any) {
+      console.warn('Failed to set Privy wallet authorization key:', e?.message)
+    }
+  }
   return client;
 }
 
@@ -23,16 +31,14 @@ export function getPrivyClientNode(): PrivyClientNode {
   if (nodeClient) return nodeClient;
   const appId = process.env.NEXT_PUBLIC_PRIVY_APP_ID;
   const appSecret = process.env.PRIVY_APP_SECRET;
-  if (!appId || !appSecret) throw new Error('Missing NEXT_PUBLIC_PRIVY_APP_ID or PRIVY_APP_SECRET');
-  nodeClient = new PrivyClientNode({ appId, appSecret,  });
-  // const authKey = process.env.PRIVY_WALLET_AUTH_PRIVATE_KEY
-  // if (authKey) {
-  //   try {
-  //     client.walletApi.updateAuthorizationKey(authKey)
-  //   } catch (e: any) {
-  //     console.warn('Failed to set Privy wallet authorization key:', e?.message)
-  //   }
-  // }
+  const verificationKey = process.env.PRIVY_AUTHORIZATION_KEY_MEMBERS;
+  if (!appId || !appSecret || !verificationKey) throw new Error('Missing NEXT_PUBLIC_PRIVY_APP_ID, PRIVY_APP_SECRET or PRIVY_AUTHORIZATION_KEY_MEMBERS');
+  nodeClient = new PrivyClientNode({
+    appId,
+    appSecret,
+    // jwtVerificationKey: verificationKey
+  });
+  // const user=await nodeClient.users()._get()
   return nodeClient;
 }
 

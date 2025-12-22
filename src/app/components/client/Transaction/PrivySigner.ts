@@ -21,7 +21,7 @@ export class PrivySigner extends Signer {
     super(privyWalletDef.publicKey);
     this.privyWalletDef = privyWalletDef;
     this.jwt=jwt;
-    console.log("privysigner constructor: jwt=",this.jwt,".");
+    console.log("privySigner constructor: jwt=",this.jwt,".");
   }
 
   protected async signRaw(msgHash: string): Promise<Signature> {

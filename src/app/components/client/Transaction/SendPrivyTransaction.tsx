@@ -1,7 +1,7 @@
 "use client";
 
 import { Box, Button, Center, Field, Input, Text, VStack } from "@chakra-ui/react";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from "react-hook-form";
 import QRCode from "react-qr-code";
 import { Contract, type GetTransactionReceiptResponse, type RevertedTransactionReceiptResponse, type SuccessfulTransactionReceiptResponse } from 'starknet';
@@ -54,11 +54,11 @@ export default function SendPrivyTransaction() {
             // console.log("estimateFees2=", estimateFees.resourceBounds.l2_gas.max_amount, "total=", estimateFees.overall_fee, "digits=", estimateFees.overall_fee.toString().length - 1);
 
             const resp = await privyAccount.execute(transferCall,
-            //      {
-            //     resourceBounds: estimateFees.resourceBounds,
-            //     skipValidate: true,
-            // }
-        );
+                //      {
+                //     resourceBounds: estimateFees.resourceBounds,
+                //     skipValidate: true,
+                // }
+            );
             const txR = await privyAccount.waitForTransaction(resp.transaction_hash);
             setTxR(txR);
             setInProgress(false);
@@ -90,6 +90,7 @@ export default function SendPrivyTransaction() {
         return resp;
     }
 
+    
     return (
         <>
             <Center pb={2} pt={3}>
@@ -104,7 +105,7 @@ export default function SendPrivyTransaction() {
             </Center>
             <form onSubmit={handleSubmit(sendTx)}>
                 <Center>
-                    <VStack w="500px"px={"3%"}>
+                    <VStack w="500px" px={"3%"}>
                         <Field.Root invalid={errors.targetAddress as any}>
                             <Field.Label htmlFor="encoded" textStyle="xs"> Destination address (0x 64 characters) :</Field.Label>
                             <Input w="90%" minH={50} maxH={500}

@@ -2,17 +2,24 @@
 
 import { Button, Center, VStack } from '@chakra-ui/react';
 import { usePrivy } from '@privy-io/react-auth'
+import { useEffect } from 'react';
 
 export default function LoginButton() {
   const { login, logout, authenticated, user, ready } = usePrivy();
-  const verticalMargin=4;
+  const verticalMargin = 4;
 
-  function userDebug() {
+  useEffect(() => {
     if (!ready) {
       console.log("Not ready.")
-    } else{
-      console.log("user =",user);
+    } else {
+      console.log("user =", user);
     }
+  }
+    , [ready]
+  );
+
+  if (!ready) {
+    return <></>;
   }
 
   if (authenticated) {
@@ -25,16 +32,12 @@ export default function LoginButton() {
           ml={4}
           px={5}
           fontWeight='bold'
-           borderWidth={2}
-                borderColor={"gray.400"}
+          borderWidth={2}
+          borderColor={"gray.400"}
           onClick={logout}
         >
           Logout Privy
         </Button>
-        {/* <Button onClick={userDebug}>
-          user
-        </Button> */}
-
       </Center>
     )
   }
@@ -48,9 +51,9 @@ export default function LoginButton() {
         ml={4}
         px={5}
         fontWeight='bold'
-         borderWidth={2}
-                borderColor={"gray.400"}
-        onClick={login }
+        borderWidth={2}
+        borderColor={"gray.400"}
+        onClick={login}
       >
         Connect Privy Wallet
       </Button>

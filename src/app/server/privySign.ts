@@ -5,32 +5,42 @@ import type { WalletDef } from "../types";
 import { encode, type Signature } from "starknet";
 import type { AuthorizationContext, PrivyClient as PrivyClientNode } from "@privy-io/node";
 
-export async function privySign(wallet: WalletDef, messageHash: string,jwt:string): Promise<Signature> {
+export async function privySign(wallet: WalletDef, messageHash: string, jwt: string): Promise<Signature> {
     const privyNode: PrivyClientNode = getPrivyClientNode();
-    // const authPrivK = process.env.PRIVY_AUTHORIZATION_PRIVATE_KEY ?? "";
-    // const authorizationContext: AuthorizationContext = {
-    //     authorization_private_keys: [authPrivK],
-    // };
-    const authorizationContext: AuthorizationContext = {
-        user_jwts: [jwt],
-    };
-console.log({authorizationContext});
-    // ******* Do not work : Error: 401 {"error":"No valid authorization keys or user signing keys available"}
+    const authPrivK = process.env.PRIVY_AUTHORIZATION_PRIVATE_KEY ?? "";
+    try {
+        const verifiedClaims = await privyNode.utils().auth().verifyAuthToken(jwt);
+        console.log("jwt verified:", verifiedClaims);
+    } catch (error: any) {
+        throw new Error(`Token verification failed with error ${error.error}.`);
+    }
+    // const authorizationContext: AuthorizationContext = { authorization_private_keys: [authPrivK] };
+    // ******* Do not work --> Error: 401 {"error":"No valid authorization keys or user signing keys available"}
 
-    const responseSignature = await privyNode.wallets().rawSign(
-        wallet.id,
-        {
-            params: { hash: messageHash },
-            authorization_context: authorizationContext,
-        },
-    );
+    const authorizationContext: AuthorizationContext = { user_jwts: [jwt] };
+    // ******* Do not work --> Error: 400 {"error":"Invalid JWT token provided","code":"invalid_data"}
+
+    console.log({ authorizationContext });
+
+    try {
+        const responseSignature = await privyNode.wallets().rawSign(
+            wallet.id,
+            {
+                params: { hash: messageHash },
+                 authorization_context: authorizationContext,
+            },
+        );
+        console.log("response signature :", responseSignature.signature);
+        const r = encode.addHexPrefix(encode.removeHexPrefix(responseSignature.signature).slice(0, 32));
+        const s = encode.addHexPrefix(encode.removeHexPrefix(responseSignature.signature).slice(32));
+        const decodedSignature = [r, s];
+        console.log("decoded signature :", decodedSignature);
+        return decodedSignature;
+    } catch (error: any) {
+        throw new Error(`raw sign failed with error ${error}.`);
+    }
     // const responseSignature = await buildAPIRequest(wallet, messageHash);
-    console.log("response signature :", responseSignature.signature);
-    const r = encode.addHexPrefix(encode.removeHexPrefix(responseSignature.signature).slice(0, 32));
-    const s = encode.addHexPrefix(encode.removeHexPrefix(responseSignature.signature).slice(32));
-    const decodedSignature = [r, s];
-    console.log("decoded signature :", decodedSignature);
-    return decodedSignature;
+
 }
 
 async function buildAPIRequest(wallet: WalletDef, messageHash: string): Promise<{ signature: string }> {

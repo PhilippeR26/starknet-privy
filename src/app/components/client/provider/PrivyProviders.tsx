@@ -7,7 +7,7 @@ const loginMethods = ['email'] as Array<("email" | "wallet" | "sms" | "google" |
 export default function PrivyProviders({ children }: { children: React.ReactNode }) {
   return (
     <PrivyProvider
-      appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID || 'demo-app-id'}
+      appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID?? 'demo-app-id'}
       config={{
         loginMethods,
         appearance: {
