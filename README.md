@@ -1,6 +1,5 @@
 # Starknet-privy
 
-![](./Images/androidTx.png)
 
 ## Presentation
 
@@ -15,7 +14,7 @@ and nothing more needed.
 
 > [!IMPORTANT]
 > - Github stars are appreciated!
-> - The DAPP is deployed [here](https://starknet-web-auth-n.vercel.app/)
+> - The DAPP is deployed [here]()
 
 
 Analyze the code to see how to create a such DAPP (start [here](https://github.com/PhilippeR26/starknet-privy/blob/main/src/app/page.tsx))  
