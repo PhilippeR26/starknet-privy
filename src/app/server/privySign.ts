@@ -10,7 +10,7 @@ export async function privySign(wallet: WalletDef, messageHash: string, jwt: str
     const authPrivK = process.env.PRIVY_AUTHORIZATION_PRIVATE_KEY ?? "";
     try {
         const verifiedClaims = await privyNode.utils().auth().verifyAuthToken(jwt);
-        console.log("jwt verified:", verifiedClaims);
+        console.log("jwt verified:", verifiedClaims, "\nCreated:", new Date(verifiedClaims.issued_at * 1000), ", expired:", new Date(verifiedClaims.expiration * 1000));
     } catch (error: any) {
         throw new Error(`Token verification failed with error ${error.error}.`);
     }
@@ -27,7 +27,7 @@ export async function privySign(wallet: WalletDef, messageHash: string, jwt: str
             wallet.id,
             {
                 params: { hash: messageHash },
-                 authorization_context: authorizationContext,
+                authorization_context: authorizationContext,
             },
         );
         console.log("response signature :", responseSignature.signature);
