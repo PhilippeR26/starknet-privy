@@ -102,7 +102,7 @@ export default function ManageUser() {
 
     const accountAddress = await createPrivyAccount(walletDefined);
     console.log("account deployed at :", accountAddress)
-    const signer = new PrivySigner(walletDefined, user.id, userJwt);
+    const signer = new PrivySigner(walletDefined, user.id);
     const privyAccount = new Account({
       provider: myFrontendProvider,
       address: accountAddress,
@@ -142,24 +142,24 @@ export default function ManageUser() {
         console.log("Read PubKey =", publicKey);
         const accountAddress = calculatePrivyAccountAddress(wallet);
         console.log("existing account deployed at :", accountAddress);
-        getUserToken().then((userJWT: string | null) => {
-          console.log("userJWT=", userJWT);
-          if (userJWT == null) {
-            console.log("JWT is null");
-            return;
-          }
-          setUserJwt(userJWT);
-          const signer = new PrivySigner(wallet, user.id, userJWT);
+        // getUserToken().then((userJWT: string | null) => {
+        //   console.log("userJWT=", userJWT);
+        //   if (userJWT == null) {
+        //     console.log("JWT is null");
+        //     return;
+        //   }
+        //   setUserJwt(userJWT);
+          const signer = new PrivySigner(wallet, user.id);
           const privyAccount = new Account({
             provider: myFrontendProvider,
             address: accountAddress,
             signer
           });
           setPrivyAccount(privyAccount);
-        }).catch((err: any) => {
-          console.log("Error when reading user JWT:", err);
-          return
-        });
+        // }).catch((err: any) => {
+        //   console.log("Error when reading user JWT:", err);
+        //   return
+        // });
 
 
       }
