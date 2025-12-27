@@ -1,15 +1,18 @@
 "use client";
 
 import { Box, Button, Center, Field, Input, Text, VStack } from "@chakra-ui/react";
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useForm } from "react-hook-form";
 import QRCode from "react-qr-code";
-import { Contract, type GetTransactionReceiptResponse, type RevertedTransactionReceiptResponse, type SuccessfulTransactionReceiptResponse } from 'starknet';
-import { addrSTRK, addrETH, SignatureValidationL2Resources } from '@/app/utils/constants';
+import { Account, Contract, encode, Signer, type GetTransactionReceiptResponse, type RevertedTransactionReceiptResponse, type Signature, type SuccessfulTransactionReceiptResponse } from 'starknet';
+import { addrSTRK, addrETH, SignatureValidationL2Resources, myFrontendProviders } from '@/app/utils/constants';
 import { useGlobalContext } from '@/app/globalContext';
 import { ERC20Abi } from '@/contracts/erc20';
 import { convertAmount } from '@/app/utils/convertAmount';
 import GetBalance from '../Contract/GetBalance';
+import type { WalletDef } from "@/app/types";
+import { useSignRawHash } from "@privy-io/react-auth/extended-chains";
+import { useFrontendProvider } from "../provider/providerContext";
 
 interface FormValues {
     targetAddress: string,
@@ -18,11 +21,43 @@ interface FormValues {
 
 
 export default function SendPrivyTransaction() {
-    const { privyAccount } = useGlobalContext();
+
     const [inProgress, setInProgress] = useState<boolean>(false);
     const [destAddress, setDestAddress] = useState<string>("");
     const [amount, setAmount] = useState<string>("");
     const [txR, setTxR] = useState<GetTransactionReceiptResponse | undefined>(undefined);
+    const { currentFrontendProviderIndex } = useFrontendProvider();
+    const myFrontendProvider = myFrontendProviders[currentFrontendProviderIndex];
+    const { walletDefinition } = useGlobalContext();
+    const { signRawHash } = useSignRawHash();
+
+    class PrivySigner extends Signer {
+        public privyWalletDef: WalletDef;
+
+        constructor(privyWalletDef: WalletDef) {
+            console.log("privy signer constructor. privyWalletDef=", privyWalletDef);
+            if (!privyWalletDef.publicKey) {
+                throw new Error("No public key in privy signer constructor");
+            }
+            super(privyWalletDef.publicKey);
+            this.privyWalletDef = privyWalletDef;
+
+        }
+
+        protected async signRaw(msgHash: string): Promise<Signature> {
+            console.log("txHash calculated=", msgHash);
+            const { signature } = await signRawHash({
+                address: this.privyWalletDef.address,
+                chainType: 'starknet',
+                hash: msgHash as `0x${string}`
+            });
+            const r = encode.addHexPrefix(encode.removeHexPrefix(signature).slice(0, 64));
+            const s = encode.addHexPrefix(encode.removeHexPrefix(signature).slice(64));
+            const decodedSignature = [r, s];
+            console.log("Signer signature =", signature, decodedSignature);
+            return decodedSignature;
+        }
+    }
 
     const {
         handleSubmit,
@@ -31,6 +66,12 @@ export default function SendPrivyTransaction() {
     } = useForm<FormValues>();
 
     async function sendTx(values: FormValues) {
+        const signer = new PrivySigner(walletDefinition!);
+        const privyAccount = new Account({
+            provider: myFrontendProvider,
+            address: walletDefinition?.address ?? "",
+            signer
+        });
         if (!!privyAccount) {
             setTxR(undefined);
             setDestAddress(values.targetAddress);
@@ -47,17 +88,17 @@ export default function SendPrivyTransaction() {
                 amount: qty,
             });
             console.log("transfer =", transferCall);
-            // const estimateFees = await privyAccount.estimateInvokeFee(transferCall, { skipValidate: true });
-            // const tmpL2amount = estimateFees.resourceBounds.l2_gas.max_amount;
-            // console.log("Estimate L2 amount=", tmpL2amount);
-            // estimateFees.resourceBounds.l2_gas.max_amount += SignatureValidationL2Resources;
-            // console.log("estimateFees2=", estimateFees.resourceBounds.l2_gas.max_amount, "total=", estimateFees.overall_fee, "digits=", estimateFees.overall_fee.toString().length - 1);
-
+            const estimateFees = await privyAccount.estimateInvokeFee(transferCall, { skipValidate: true });
+            // if L2 amount is not increased, we have during account validation an Error 55: "out of gas".
+            const tmpL2amount = estimateFees.resourceBounds.l2_gas.max_amount;
+            console.log("Estimate L2 amount=", tmpL2amount);
+            estimateFees.resourceBounds.l2_gas.max_amount += SignatureValidationL2Resources;
+            console.log("estimateFees2=", estimateFees.resourceBounds.l2_gas.max_amount, "total=", estimateFees.overall_fee, "digits=", estimateFees.overall_fee.toString().length - 1);
             const resp = await privyAccount.execute(transferCall,
-                //      {
-                //     resourceBounds: estimateFees.resourceBounds,
-                //     skipValidate: true,
-                // }
+                {
+                    resourceBounds: estimateFees.resourceBounds,
+                    skipValidate: true,
+                }
             );
             const txR = await privyAccount.waitForTransaction(resp.transaction_hash);
             setTxR(txR);
@@ -90,18 +131,18 @@ export default function SendPrivyTransaction() {
         return resp;
     }
 
-    
+
     return (
         <>
             <Center pb={2} pt={3}>
                 <QRCode
-                    value={privyAccount!.address}
+                    value={walletDefinition!.address}
                     size={150}
                     level="M"
                 />
             </Center>
             <Center>
-                <GetBalance tokenAddress={addrSTRK} accountAddress={privyAccount!.address} ></GetBalance>
+                <GetBalance tokenAddress={addrSTRK} accountAddress={walletDefinition!.address} ></GetBalance>
             </Center>
             <form onSubmit={handleSubmit(sendTx)}>
                 <Center>

@@ -3,33 +3,64 @@
 import { getPrivyClientNode } from "./privyClient";
 import type { WalletDef } from "../types";
 import { encode, type Signature } from "starknet";
-import type { AuthorizationContext, PrivyClient as PrivyClientNode } from "@privy-io/node";
+import { generateAuthorizationSignature, type AuthorizationContext, type PrivyClient as PrivyClientNode, type WalletApiRequestSignatureInput } from "@privy-io/node";
+import { getWalletNode } from "./getWalletNode";
 
 export async function privySign(wallet: WalletDef, messageHash: string, jwt: string): Promise<Signature> {
+    console.log({ wallet });
     const privyNode: PrivyClientNode = getPrivyClientNode();
     const authPrivK = process.env.PRIVY_AUTHORIZATION_PRIVATE_KEY ?? "";
+    let userId: string = "";
     try {
         const verifiedClaims = await privyNode.utils().auth().verifyAuthToken(jwt);
         console.log("jwt verified:", verifiedClaims, "\nCreated:", new Date(verifiedClaims.issued_at * 1000), ", expired:", new Date(verifiedClaims.expiration * 1000));
+        if (verifiedClaims.app_id !== (process.env.NEXT_PUBLIC_PRIVY_APP_ID ?? "")) {
+            throw new Error("Invalid App.");
+        }
+        userId = verifiedClaims.user_id;
     } catch (error: any) {
         throw new Error(`Token verification failed with error ${error.error}.`);
     }
-    // const authorizationContext: AuthorizationContext = { authorization_private_keys: [authPrivK] };
-    // ******* Do not work --> Error: 401 {"error":"No valid authorization keys or user signing keys available"}
+    const walletOfUser = await getWalletNode(userId);
+    if (!walletOfUser) {
+        throw new Error("userId has no Starknet wallet");
+    }
+const url = `https://api.privy.io/v1/wallets/${walletOfUser.id}/raw_sign`;
+const body = { params: { hash: messageHash } };
 
-    const authorizationContext: AuthorizationContext = { user_jwts: [jwt] };
-    // ******* Do not work --> Error: 400 {"error":"Invalid JWT token provided","code":"invalid_data"}
+const input: WalletApiRequestSignatureInput = {
+    version: 1,
+    url,
+    method: 'POST',
+    headers: {
+        'privy-app-id': process.env.NEXT_PUBLIC_PRIVY_APP_ID ?? ""
+    },
+    body,
+}
+console.log({ input, appPrivK: process.env.PRIVY_AUTHORIZATION_PRIVATE_KEY ?? ""});
 
-    console.log({ authorizationContext });
 
-    try {
-        const responseSignature = await privyNode.wallets().rawSign(
-            wallet.id,
-            {
-                params: { hash: messageHash },
-                authorization_context: authorizationContext,
-            },
-        );
+const authorizationSignature = generateAuthorizationSignature({
+    input,
+    authorizationPrivateKey: process.env.PRIVY_AUTHORIZATION_PRIVATE_KEY ?? ""
+});
+
+const authorizationContext: AuthorizationContext = { authorization_private_keys: [authorizationSignature] };
+// ******* Do not work --> Error: 401 {"error":"No valid authorization keys or user signing keys available"}
+
+// const authorizationContext: AuthorizationContext = { user_jwts: [jwt] };
+// ******* Do not work --> Error: 400 {"error":"Invalid JWT token provided","code":"invalid_data"}
+
+console.log({ authorizationContext });
+
+try {
+const responseSignature = await privyNode.wallets().rawSign(
+    walletOfUser.id,
+    {
+        params: { hash: messageHash },
+        authorization_context: authorizationContext,
+    },
+);
         console.log("response signature :", responseSignature.signature);
         const r = encode.addHexPrefix(encode.removeHexPrefix(responseSignature.signature).slice(0, 32));
         const s = encode.addHexPrefix(encode.removeHexPrefix(responseSignature.signature).slice(32));
@@ -83,4 +114,18 @@ async function buildAPIRequest(wallet: WalletDef, messageHash: string): Promise<
 //     }
 // }'
 // }
+
+
+// const url = `https://api.privy.io/v1/wallets/${wallet.id}/raw_sign`;
+// const body = { params: { hash: messageHash } };
+// https://docs.privy.io/wallets/using-wallets/signers/quickstart
+// const signaturePayload: GenerateAuthorizationSignatureInput = {
+//     version: 1,
+//     method: 'POST',
+//     url,
+//     body: any;
+//     headers: {
+//         'privy-app-id': process.env.NEXT_PUBLIC_PRIVY_APP_ID ?? ""
+//     }
+// };
 

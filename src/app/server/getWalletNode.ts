@@ -10,7 +10,7 @@ import type { PrivyClient as PrivyClientNode, User } from "@privy-io/node";
  * @param userId 
  * @returns 
  */
-export async function getWalletsNode(userId: string): Promise<WalletDef|undefined> {
+export async function getWalletNode(userId: string): Promise<WalletDef|undefined> {
     const privy: PrivyClientNode = getPrivyClientNode();
     const user: User = await privy.users()._get(userId);
     const accounts = user.linked_accounts;
@@ -20,12 +20,12 @@ export async function getWalletsNode(userId: string): Promise<WalletDef|undefine
     console.log("getWalletNode: starkWallets.length=",starkWallets.length);
     if (starkWallets.length===0) return undefined;
     const w = starkWallets[0];
-    
     const def = {
         id: w.id,
         address: w.address,
         chainType: w.chain_type,
         publicKey: w.public_key,
     } as WalletDef
+    console.log("wallet=",def)
     return def;
 }

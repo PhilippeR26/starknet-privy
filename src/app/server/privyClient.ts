@@ -31,8 +31,8 @@ export function getPrivyClientNode(): PrivyClientNode {
   if (nodeClient) return nodeClient;
   const appId = process.env.NEXT_PUBLIC_PRIVY_APP_ID;
   const appSecret = process.env.PRIVY_APP_SECRET;
-  const verificationKey = process.env.PRIVY_AUTHORIZATION_KEY_MEMBERS;
-  if (!appId || !appSecret || !verificationKey) throw new Error('Missing NEXT_PUBLIC_PRIVY_APP_ID, PRIVY_APP_SECRET or PRIVY_AUTHORIZATION_KEY_MEMBERS');
+  const authorizationPrivateKey = process.env.PRIVY_AUTHORIZATION_PRIVATE_KEY??"";
+  if (!appId || !appSecret || !authorizationPrivateKey) throw new Error('Missing NEXT_PUBLIC_PRIVY_APP_ID, PRIVY_APP_SECRET or PRIVY_AUTHORIZATION_KEY_MEMBERS');
   nodeClient = new PrivyClientNode({
     appId,
     appSecret,

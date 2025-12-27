@@ -16,7 +16,9 @@ import { createPrivyWallet } from "@/app/server/createWallet";
 import { createPrivyAccount } from "@/app/server/sponsorPrivyAccount";
 import { PrivySigner } from "../Transaction/PrivySigner";
 import type { Wallet } from "@privy-io/node";
-import { getWalletsNode } from "@/app/server/getWalletsNode";
+import { getWalletNode } from "@/app/server/getWalletNode";
+import {useSessionSigners} from '@privy-io/react-auth';
+
 
 interface FormValues {
   accountName: string
@@ -32,6 +34,7 @@ export default function ManageUser() {
   const myFrontendProvider = myFrontendProviders[currentFrontendProviderIndex];
 
   const { ready, authenticated, user, getAccessToken, logout } = usePrivy();
+const {addSessionSigners} = useSessionSigners();
 
   async function handleCopyAddress() {
     try {
@@ -113,7 +116,7 @@ export default function ManageUser() {
   }
 
   async function getWallet(user: User): Promise<WalletDef | undefined> {
-    const walletDefinition = await getWalletsNode(user.id);
+    const walletDefinition = await getWalletNode(user.id);
     return walletDefinition;
   }
 
@@ -123,6 +126,7 @@ export default function ManageUser() {
     return jwt;
   }
 
+  // initializations once privy user connected
   useEffect(() => {
     if (!ready || user == null) return;
     getWallet(user).then(
