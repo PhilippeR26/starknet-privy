@@ -7,13 +7,13 @@ import SendPrivyTransaction from "./Transaction/SendPrivyTransaction";
 
 
 export function DisplayConnected() {
-    const { privyAccount } = useGlobalContext();
+    const { walletDefinition } = useGlobalContext();
     const { ready, authenticated, user, getAccessToken, logout } = usePrivy();
 
     return (
         <>
             {user && <> <ManageUser></ManageUser>
-                {!!privyAccount && <>
+                {!!walletDefinition && <>
                     <SendPrivyTransaction></SendPrivyTransaction>
                 </>
                 }

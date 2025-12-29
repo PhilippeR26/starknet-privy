@@ -8,7 +8,7 @@ import { ERC20Abi } from "@/contracts/erc20";
 
 
 
-export async function createPrivyAccount(wallet: WalletDef): Promise<string> {
+export async function ServerActionCreatePrivyAccount(wallet: WalletDef): Promise<string> {
     const myProvider: RpcProvider = myFrontendProviders[2];
     const account0 = new Account({
         provider: myProvider,
@@ -19,10 +19,9 @@ export async function createPrivyAccount(wallet: WalletDef): Promise<string> {
     console.log({ newAddress });
     try {
         await myProvider.getClassAt(newAddress);
-        console.warn("Account is already existing.");
+        console.log("Account is already existing.");
         return newAddress;
     } catch { }
-
     const deployAccount: Call = {
         contractAddress: constants.UDC.ADDRESS,
         entrypoint: constants.UDC.ENTRYPOINT,
@@ -38,13 +37,15 @@ export async function createPrivyAccount(wallet: WalletDef): Promise<string> {
     const strkContract = new Contract({ abi: ERC20Abi.abi, address: addrSTRK, providerOrAccount: account0 });
     const transferCallSTRK: Call = strkContract.populate("transfer", {
         recipient: newAddress,
-        amount: 15n * 10n ** 17n, // 1.5 STRK
+        amount: 15n * 10n ** 17n, // funded with 1.5 STRK
     });
     console.log("transferCallSTRK =", transferCallSTRK);
     const { transaction_hash: txHDepl }: InvokeFunctionResponse = await account0.execute([deployAccount, transferCallSTRK]);
     console.log("account deployed with txH =", txHDepl);
     const txR = await account0.waitForTransaction(txHDepl);
-
+    if (!txR.isSuccess()) {
+        throw new Error("transaction report is not a success!");
+    }
     return newAddress;
 }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Center, VStack } from '@chakra-ui/react';
+import { Button, Center } from '@chakra-ui/react';
 import { usePrivy } from '@privy-io/react-auth'
 import { useEffect } from 'react';
 
