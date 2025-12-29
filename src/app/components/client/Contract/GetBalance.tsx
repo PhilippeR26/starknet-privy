@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { Contract, shortString } from "starknet";
+import { CairoBytes31, Contract, shortString } from "starknet";
 import { Text, Center, Spinner } from "@chakra-ui/react";
 import styles from '../../../page.module.css'
 import { erc20Abi } from "../../../contracts/abis/ERC20abi"
@@ -33,8 +33,8 @@ export default function GetBalance({ tokenAddress, accountAddress }: Props) {
 
         contract.symbol()
             .then((resp: any) => {
-                const res2 = shortString.decodeShortString(resp);
-                console.log("ressymbol=", res2);
+                const res2 = new CairoBytes31(resp).decodeUtf8();
+                console.log("resSymbol=", res2);
                 setSymbol(res2);
             })
             .catch((e: any) => { console.log("error getSymbol=", e) });
@@ -45,9 +45,7 @@ export default function GetBalance({ tokenAddress, accountAddress }: Props) {
         contract.balanceOf(accountAddress)
             .then((resp: any) => {
                 const res3 = Number(resp);
-                // console.log("res3=", resp);
                 setBalance(res3 / Math.pow(10, decimals));
-                // console.log({counter});
             }
             )
             .catch((e: any) => { console.log("error balanceOf=", e) });
@@ -57,7 +55,6 @@ export default function GetBalance({ tokenAddress, accountAddress }: Props) {
     useEffect(() => {
         const tim = setInterval(() => {
             setCounter((prevCount) => prevCount + 1n);
-            // console.log("timerId=", tim);
         }
             , 24_000 //ms
         );
@@ -88,6 +85,5 @@ export default function GetBalance({ tokenAddress, accountAddress }: Props) {
                 )
             }
         </>
-
     )
 }

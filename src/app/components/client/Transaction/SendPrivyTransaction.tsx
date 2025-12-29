@@ -41,7 +41,6 @@ export default function SendPrivyTransaction() {
       }
       super(privyWalletDef.publicKey);
       this.privyWalletDef = privyWalletDef;
-
     }
 
     protected async signRaw(msgHash: string): Promise<Signature> {

@@ -9,9 +9,8 @@ import type { WalletDef } from '@/app/types';
 import { useGlobalContext } from '@/app/globalContext';
 import { calculatePrivyAccountAddress } from "@/app/utils/account";
 import { shortHex64 } from "@/app/utils/format";
-import { usePrivy, type Wallet, type LinkedAccountWithMetadata } from "@privy-io/react-auth";
+import { usePrivy, type LinkedAccountWithMetadata } from "@privy-io/react-auth";
 import { useCreateWallet } from '@privy-io/react-auth/extended-chains';
-
 import { ServerActionCreatePrivyAccount } from "@/app/server/sponsorPrivyAccount";
 import { useFrontendProvider } from '../provider/providerContext';
 import { myFrontendProviders } from '@/app/utils/constants';
@@ -133,7 +132,6 @@ export default function ManageUser() {
       const accountAddress = calculatePrivyAccountAddress(wallet);
       console.log("existing account deployed at :", accountAddress);
     })
-
   }
     , [ready, user]);
 

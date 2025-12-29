@@ -13,9 +13,10 @@ export function DisplayConnected() {
     return (
         <>
             {user && <> <ManageUser></ManageUser>
-                {!!walletDefinition && <>
-                    <SendPrivyTransaction></SendPrivyTransaction>
-                </>
+                {!!walletDefinition &&
+                    <>
+                        <SendPrivyTransaction></SendPrivyTransaction>
+                    </>
                 }
             </>
             }
