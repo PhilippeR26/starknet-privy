@@ -20,7 +20,7 @@ interface FormValues {
 }
 
 
-export default function SendPrivyTransaction() {
+export default function SendPrivyTransactionFrontend() {
 
   const [inProgress, setInProgress] = useState<boolean>(false);
   const [destAddress, setDestAddress] = useState<string>("");
@@ -240,7 +240,7 @@ export default function SendPrivyTransaction() {
         }
       </>
       }
-      <Text mb={20}></Text>
+      
     </>
   )
 }

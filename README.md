@@ -58,13 +58,23 @@ Click on `Connect Privy Wallet`, enter your email, then get the code in your mai
 If it's your first connection, click on the `Create account` button, and wait few seconds.
 Then you have a fresh new Starknet account, funded with 1.5 STRK.
 
-### Immediate transaction
+### Immediate transaction in the frontend
 You have just to define the recipient and the STRK amount, then click on `Send transaction`.  
 After 5 to 10s, the transaction success is reported.
 ![](Images/privyScreenshot.png)
 
-### Delayed transaction
-TBD
+### Delayed transaction in the server
+The user can authorize the backend to perform any transactions on their behalf (rebalancing of account, conditional orders, ...), but it's a painful journey to implement a such functionality.  
+First, you need to contact the privy assistance, and ask a special authorization to use JWTs (JSON Web Token) in your Starknet App, because privy signers handling is not working with Starknet.  
+Then you can implement in your APP a process of JWT creation/verification, to secure the transaction executions. By default, the server has the authorization to execute transactions in the next hour (can be extended to 24h in the privy APP dashboard).
+
+In the.env.local file, add a line with the APP secret (available in the privy dashboard):
+```bash
+PRIVY_APP_SECRET = "privy_app_secret_xxxx"
+```
+
+Then you can create a JWT to authorize the backend to process, and ask to the server to work on your behalf :
+![](Images/serverTx.png)
 
 ## Deploy on Vercel 🎊
 

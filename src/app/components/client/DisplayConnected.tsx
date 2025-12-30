@@ -1,9 +1,10 @@
 "use client";
-
+import { Separator, Text } from "@chakra-ui/react";
 import ManageUser from "./ConnectWallet/ManageUser";
 import { useGlobalContext } from "@/app/globalContext";
 import { usePrivy } from "@privy-io/react-auth";
-import SendPrivyTransaction from "./Transaction/SendPrivyTransaction";
+import SendPrivyTransactionFrontend from "./Transaction/SendPrivyTransactionFrontEnd";
+import SendPrivyTransactionServer from "./Transaction/SendPrivyTransactionServer";
 
 
 export function DisplayConnected() {
@@ -15,7 +16,10 @@ export function DisplayConnected() {
             {user && <> <ManageUser></ManageUser>
                 {!!walletDefinition &&
                     <>
-                        <SendPrivyTransaction></SendPrivyTransaction>
+                        <SendPrivyTransactionFrontend></SendPrivyTransactionFrontend>
+                        <Separator size={"lg"} my={4}></Separator>
+                        <SendPrivyTransactionServer></SendPrivyTransactionServer>
+                        <Text mb={20}></Text>
                     </>
                 }
             </>

@@ -126,10 +126,10 @@ export default function ManageUser() {
     };
     deployAccount(def).then(() => {
       setIsWalletExisting(true);
-      setWalletDefinition(wallet);
-      const publicKey = wallet.publicKey ?? "0x00";
+      setWalletDefinition(def);
+      const publicKey = def.publicKey ?? "0x00";
       console.log("Read PubKey =", publicKey);
-      const accountAddress = calculatePrivyAccountAddress(wallet);
+      const accountAddress = calculatePrivyAccountAddress(def);
       console.log("existing account deployed at :", accountAddress);
     })
   }
