@@ -64,7 +64,7 @@ After 5 to 10s, the transaction success is reported.
 ![](Images/privyScreenshot.png)
 
 ### Delayed transaction in the server
-The user can authorize the backend to perform any transactions on their behalf (rebalancing of account, conditional orders, ...), but it's a painful journey to implement a such functionality.  
+The user can authorize the backend to perform any delayed transactions on their behalf (rebalancing of account, conditional orders, ...), but it's a painful journey to implement a such functionality.  
 First, you need to contact the privy assistance, and ask a special authorization to use JWTs (JSON Web Token) in your Starknet App, because privy signers handling is not working with Starknet.  
 Then you can implement in your APP a process of JWT creation/verification, to secure the transaction executions. By default, the server has the authorization to execute transactions in the next hour (can be extended to 24h in the privy APP dashboard).
 
@@ -74,6 +74,7 @@ PRIVY_APP_SECRET = "privy_app_secret_xxxx"
 ```
 
 Then you can create a JWT to authorize the backend to process, and ask to the server to work on your behalf :
+
 ![](Images/serverTx.png)
 
 ## Deploy on Vercel 🎊
