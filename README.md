@@ -59,12 +59,12 @@ Click on `Connect Privy Wallet`, enter your email, then get the code in your mai
 If it's your first connection, click on the `Create account` button, and wait few seconds.
 Then you have a fresh new Starknet account, funded with 1.5 STRK (sponsored by the DAPP).
 
-### Connect with you social accounts
+### Connect with your social accounts
 This demo DAPP has been configured to use Google, Github, Discord & X (Twitter). 
 
 ![](./Images/login.png)
 
-Just click on the social app account you want to use, and accept the connection to privy.
+Just click on the social app account you want to use, and accept the connection to privy:
 
 ![](Images/twitter.png)
 
