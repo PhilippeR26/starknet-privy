@@ -2,7 +2,7 @@
 
 import { PrivyProvider } from "@privy-io/react-auth";
 
-const loginMethods = ['email'] as Array<("email" | "wallet" | "sms" | "google" | "twitter" | "discord" | "github" | "linkedin" | "spotify" | "instagram" | "tiktok" | "line" | "twitch" | "apple" | "farcaster" | "telegram" | "passkey")>;
+const loginMethods = ["email","twitter","google","github","discord"] as Array<("email" | "wallet" | "sms" | "google" | "twitter" | "discord" | "github" | "linkedin" | "spotify" | "instagram" | "tiktok" | "line" | "twitch" | "apple" | "farcaster" | "telegram" | "passkey")>;
 
 export default function PrivyProviders({ children }: { children: React.ReactNode }) {
   return (

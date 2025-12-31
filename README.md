@@ -2,7 +2,7 @@
 <h1 style="text-align: center;"> Starknet-privy </h1>
  
 <p align="center">
-  <img src="./Images/privyTitle.png" />
+  <img src="./Images/login.png" />
 </p>
 
 ## Presentation
@@ -27,7 +27,7 @@ The DAPP is made in the Next.js framework. Coded in Typescript. Using React, Zus
 
 ## Getting Started 🚀
 
-- Create a privy account in https://www.privy.io/ , then creates a new application. Search the App ID.
+- Create a privy account in https://www.privy.io/ , then creates a new application. Search the App ID. Select which Social networks that can be used.
 - define a `.env.local` file including :
 ```bash
 NEXT_PUBLIC_PROVIDER_URL = ""
@@ -51,12 +51,26 @@ npm run dev
 > Works with these hardwares: Windows, Linux, Android, Iphone
 
 ## Usage
+### Connect with your email
 
 Click on `Connect Privy Wallet`, enter your email, then get the code in your mail box, and write it in the APP.
 ![](Images/privyTitle.png)
 
 If it's your first connection, click on the `Create account` button, and wait few seconds.
-Then you have a fresh new Starknet account, funded with 1.5 STRK.
+Then you have a fresh new Starknet account, funded with 1.5 STRK (sponsored by the DAPP).
+
+### Connect with you social accounts
+This demo DAPP has been configured to use Google, Github, Discord & X (Twitter). 
+
+![](./Images/login.png)
+
+Just click on the social app account you want to use, and accept the connection to privy.
+
+![](Images/twitter.png)
+
+A status message is displayed: 
+
+![](Images/twitterSuccess.png)![](Images/Discord.png)![](Images/github.png)![](Images/Google.png)
 
 ### Immediate transaction in the frontend
 You have just to define the recipient and the STRK amount, then click on `Send transaction`.  
